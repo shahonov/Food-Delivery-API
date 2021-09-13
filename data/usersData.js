@@ -55,7 +55,7 @@ const setExpiration = async (userId, expiration) => {
             { $set: { expiration } }
         );
 
-    return result.modifiedCount > 0;
+    return result.modifiedCount > 0 || result.matchedCount > 0;
 }
 
 const getUserById = async _id => {
