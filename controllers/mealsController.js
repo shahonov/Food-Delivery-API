@@ -3,9 +3,14 @@ const router = require('express').Router();
 const roles = require('../global/roles');
 const authorize = require('../middlewares/authorizationMiddleware');
 const authenticate = require('../middlewares/authenticationMiddleware');
-const { getOwnerMeals, addOwnerMeal, deleteOwnerMeal } = require('../data/mealsData');
+const {
+    addOwnerMeal,
+    getOwnerMeals,
+    deleteOwnerMeal,
+    changeMealOrder,
+} = require('../data/mealsData');
 
-router.get('/owner/:ownerId/:from/:to', authenticate, async (req, res, next) => {
+router.get('/owner/:ownerId', authenticate, async (req, res, next) => {
     try {
         const { ownerId } = req.params;
         const result = await getOwnerMeals(ownerId);
@@ -37,6 +42,20 @@ router.delete('/owner/delete-meal', authorize(roles.restaurantOwner), async (req
             res.json({ isSuccess: true });
         } else {
             res.json({ isSuccess: false, message: 'could not delete meal' });
+        }
+    } catch (err) {
+        next(err);
+    }
+})
+
+router.patch('/owner/change-order', authorize(roles.restaurantOwner), async (req, res, next) => {
+    try {
+        const { mealId, oldOrderId, newOrderId } = req.body;
+        const result = await changeMealOrder(mealId, oldOrderId, newOrderId);
+        if (result) {
+            res.json({ isSuccess: true });
+        } else {
+            res.json({ isSuccess: false, message: 'could not change meal order' });
         }
     } catch (err) {
         next(err);
